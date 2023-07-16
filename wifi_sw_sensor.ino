@@ -145,7 +145,6 @@ void setup() {
         return server.requestAuthentication();
       }
       handleRoot();
-      handleLEDon();
       
     });
     
