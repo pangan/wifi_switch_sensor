@@ -50,9 +50,9 @@ conta.printf("\
 <head>\
 <!-- for mobile detection --> \
 <meta name='viewport' content='width=device-width, initial-scale=1'>\
- <link rel='stylesheet' href='http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css' >\
- <script src='http://code.jquery.com/jquery-1.11.3.min.js'></script>\
- <script src='http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js'></script>\
+<link rel='stylesheet' href='http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css' >\
+<script src='http://code.jquery.com/jquery-1.11.3.min.js'></script>\
+<script src='http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js'></script>\
 <style>\
 html{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
 .button_round {\
@@ -83,6 +83,7 @@ display: flex;\
 justify-content: center;\
 align-items: center;\
 }\
+.button_all:visited{color: #fff;}\
 .button_all:before {\
 background-color: initial;\
 background-image: linear-gradient(#fff 0, rgba(255, 255, 255, 0) 100%%);\
@@ -109,11 +110,11 @@ width: 90%%;\
 <h1>WiFi Switch</h1>\
 <iframe frameBorder='0' height='50' width='50%%' srcdoc='<h2 align=right>State:</h2>'>\</iframe><iframe name='myIframe' height='50' width='50%%' frameBorder='0' srcdoc='<h2>%s</h2>'></iframe>\
 <br><iframe frameBorder='0' height='50' width='50%%' srcdoc='<h2 align=right>Sensor Value:</h2>'></iframe><iframe name='sensor' width='50%%' height='50' frameborder='0' srcdoc='<h2>%s</h2>'></iframe>\
-<br><a href='pon' target='myIframe' class='button_on button_all'>TURN ON</a><br>\
-<a href='poff' target='myIframe' class='button_off button_all'>TURN OFF</a><br>\
-<a href ='psensor' target='sensor' class='button_all button_sensor'>Read Sensor</a><br>\
+<br><a href='pon' target='myIframe' class='button_on button_all'><font color=white>TURN ON</font></a><br>\
+<a href='poff' target='myIframe' class='button_off button_all'><font color=white>TURN OFF</font></a><br>\
+<a href ='psensor' target='sensor' class='button_all button_sensor'><font color=white>Read Sensor</font></a><br>\
 <br>\
-<a href='logout' class='button_round'>Logout</a>\
+<a href='logout' class='button_round'><font color=white>Logout</font></a>\
 </body>\
 </html>\
 ", status, sensor_value);
@@ -169,7 +170,9 @@ void setup() {
    
     Serial.println("Open http://192.168.4.1");
     Serial.println(WiFi.localIP());
-    Serial.println("/ in your browser to see it working");
+    Serial.println("in your browser to see it working");
+    String MAC = WiFi.macAddress();
+    Serial.println("MAC Address: " + MAC);
     //WiFiManager
     //Local intialization. Once its business is done, there is no need to keep it around
     WiFiManager wifiManager;
@@ -185,7 +188,14 @@ void setup() {
     //if it does not connect it starts an access point with the specified name
     //here  "AutoConnectAP"
     //and goes into a blocking loop awaiting configuration
-    wifiManager.autoConnect("WiFi-SW-FACFA2_D13C35 ");
+    
+    String SSID_STR = "WiFi-SW-"+MAC;
+    //char arr[SSID_STR.length() + 1];
+
+    //strcpy(arr, SSID_STR.c_str());
+
+    // char* SSID = "WiFi-SW-" + arr;
+    wifiManager.autoConnect(SSID_STR.c_str());
     //or use this for auto generated name ESP + ChipID
     //wifiManager.autoConnect();
 
