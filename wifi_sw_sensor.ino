@@ -43,34 +43,81 @@ String sensor_value = "?";
 
 StreamString conta;
 conta.reserve(500);  // Preallocate a large chunk to avoid memory fragmentation
+
 conta.printf("\
 <!DOCTYPE html>\
 <html>\
 <head>\
-<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
-         .button_on { background-color: #195B6A; border: none; color: white; padding: 16px 40px;\
-            text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}\
-          .button_off { background-color:red; border: none; color: white; padding: 16px 40px;\
-            text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}\
-            .button_sensor { background-color:orange; border: none; color: white; padding: 16px 40px;\
-            text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}\
-            .value_div {font_size: 20px;}\
+<!-- for mobile detection --> \
+<meta name='viewport' content='width=device-width, initial-scale=1'>\
+ <link rel='stylesheet' href='http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css' >\
+ <script src='http://code.jquery.com/jquery-1.11.3.min.js'></script>\
+ <script src='http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js'></script>\
+<style>\
+html{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+.button_round {\
+border-radius: 12px;\
+background-color: #195B6A;\
+color: white; padding: 16px 40px;\
+text-decoration: none; font-size: 20px; margin: 2px; cursor: pointer;\
+}\
+.button_all{\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+}\
+.button_all:before {\
+background-color: initial;\
+background-image: linear-gradient(#fff 0, rgba(255, 255, 255, 0) 100%%);\
+border-radius: 50%%;\
+content: '';\
+height: 80%%;\
+left: 0;\
+opacity: .5;\
+position: absolute;\
+top: 0;\
+transition: all .3s;\
+width: 90%%;\
+}\
+@media (min-width: 100px) {\
+.button_all {padding: 16px 16px;}\
+}\
+.button_on {background-color: darkgreen;}\
+.button_off {background-color: red;}\
+.button_sensor { background-color: darkorange;}\
 </style>\
 </head>\
 <body>\
 <center>\
-<h1>WiFi Switch</h1><br>\
-<a href='pon' target='myIframe' class='button_on'>TURN ON</a><br><br><br><br><br>\
-<a href='poff' target='myIframe' class='button_off'>TURN OFF</a><br><br><br>\
-State:<iframe name='myIframe' width='100' height='25' frameBorder='0' srcdoc='%s'></iframe><br>\
+<h1>WiFi Switch</h1>\
+<iframe frameBorder='0' height='50' width='50%%' srcdoc='<h2 align=right>State:</h2>'>\</iframe><iframe name='myIframe' height='50' width='50%%' frameBorder='0' srcdoc='<h2>%s</h2>'></iframe>\
+<br><iframe frameBorder='0' height='50' width='50%%' srcdoc='<h2 align=right>Sensor Value:</h2>'></iframe><iframe name='sensor' width='50%%' height='50' frameborder='0' srcdoc='<h2>%s</h2>'></iframe>\
+<br><a href='pon' target='myIframe' class='button_on button_all'>TURN ON</a><br>\
+<a href='poff' target='myIframe' class='button_off button_all'>TURN OFF</a><br>\
+<a href ='psensor' target='sensor' class='button_all button_sensor'>Read Sensor</a><br>\
 <br>\
-Sensor value: <iframe name='sensor' width='100', height='25' frameborder='0' srcdoc='%s' class='value_div'></iframe> <a href ='psensor' target='sensor' class='button_sensor'>Read</a><br><br><br>\
-<hr>\
-<br>\
-<a href='logout'>Logout</a>\
-</center>\
+<a href='logout' class='button_round'>Logout</a>\
 </body>\
-</html>", status, sensor_value);
+</html>\
+", status, sensor_value);
+
 
  server.send(200, "text/html", conta.c_str());
 
@@ -80,23 +127,28 @@ void handleLEDon() {
  Serial.println("LED on page");
   digitalWrite(output5, HIGH);
    //String s = MAIN_pumpoff; //Read HTML contents
- server.send(200, "text/html", "On"); //Send ADC value only to client ajax request
+ server.send(200, "text/html", "<h2>ON</h2>"); //Send ADC value only to client ajax request
 }
  
 void handleLEDoff() { 
  Serial.println("LED off page");
  digitalWrite(output5, LOW);
  //String s = MAIN_pumpon; //Read HTML contents
- server.send(200, "text/html", "Off"); //Send ADC value only to client ajax request
+ server.send(200, "text/html", "<h2>OFF</h2>"); //Send ADC value only to client ajax request
 }
 
 void handleSensor() {
   int sensor_value = 0;
   String sensor_val_str;
-  value_A0 = analogRead(IN_A0); 
+  value_A0 = analogRead(IN_A0);
+  delay(10);
+  value_A0 += analogRead(IN_A0);
+  delay(10);
+  value_A0 += analogRead(IN_A0);
+  value_A0 = value_A0 / 3;
   Serial.println(value_A0);
-  sensor_value = (1024 - value_A0) * 100 / 600;
-  sensor_val_str = String(sensor_value) + " %";
+  sensor_value = (1024 - value_A0) * 100 / 800;
+  sensor_val_str = "<h2>"+String(sensor_value) + " %</h2>";
 
   server.send(200, "text/html", sensor_val_str);
 }
