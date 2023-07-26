@@ -34,12 +34,83 @@ void handleRoot() {
 
 
 String status = "OFF";
+
+char* mybuttom_value = "\
+<html><head><style>\
+.button_off {\
+background-color: red;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(45deg, white, red 30%, red 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style></head><body>\
+<div align=""center""><a align=""center"" href=""pon2"" target=""mybuttom"" class=""button_off"">OFF</a></div></body></html>\
+";
+
 if (digitalRead(output5) == HIGH){
   Serial.println("Switch is ON");
   status = "ON";
+
+mybuttom_value = "\
+<style>\
+.button_on {\
+background-color: darkgreen;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(135deg, white, darkgreen 30%, darkgreen 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style>\
+<a align=""center"" href=""poff2"" target=""mybuttom"" class=""button_on"">ON</a></center>\
+";
 }
 
-String sensor_value = "?";
+char* sensor_value = "?";
+
+
 
 StreamString conta;
 conta.reserve(500);  // Preallocate a large chunk to avoid memory fragmentation
@@ -108,16 +179,15 @@ width: 90%%;\
 <body>\
 <center>\
 <h1>WiFi Switch</h1>\
-<iframe frameBorder='0' height='50' width='50%%' srcdoc='<h2 align=right>State:</h2>'>\</iframe><iframe name='myIframe' height='50' width='50%%' frameBorder='0' srcdoc='<h2>%s</h2>'></iframe>\
 <br><iframe frameBorder='0' height='50' width='50%%' srcdoc='<h2 align=right>Sensor Value:</h2>'></iframe><iframe name='sensor' width='50%%' height='50' frameborder='0' srcdoc='<h2>%s</h2>'></iframe>\
-<br><a href='pon' target='myIframe' class='button_on button_all'><font color=white>TURN ON</font></a><br>\
-<a href='poff' target='myIframe' class='button_off button_all'><font color=white>TURN OFF</font></a><br>\
+<br>\
+<iframe frameBorder='0' height='150' width='50%%' name='mybuttom' srcdoc='%s'></iframe>\
 <a href ='psensor' target='sensor' class='button_all button_sensor'><font color=white>Read Sensor</font></a><br>\
 <br>\
 <a href='logout' class='button_round'><font color=white>Logout</font></a>\
 </body>\
 </html>\
-", status, sensor_value);
+",sensor_value, mybuttom_value);
 
 
  server.send(200, "text/html", conta.c_str());
@@ -138,6 +208,86 @@ void handleLEDoff() {
  server.send(200, "text/html", "<h2>OFF</h2>"); //Send ADC value only to client ajax request
 }
 
+void handleLEDoff2() { 
+ //String s = MAIN_pumpon; //Read HTML contents
+ digitalWrite(output5, LOW);
+
+ char* new_button = "\
+<style>\
+.button_off {\
+background-color: red;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(45deg, white, red 30%, red 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style>\
+<a align=""center"" href=""pon2"" target=""mybuttom"" class=""button_off"">OFF</a></center>\
+";
+
+
+ server.send(200, "text/html", new_button); //Send ADC value only to client ajax request
+}
+
+void handleLEDon2() {
+  digitalWrite(output5, HIGH);
+  char* new_button = "\
+<style>\
+.button_on {\
+background-color: darkgreen;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(135deg, white, darkgreen 30%, darkgreen 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style>\
+<a align=""center"" href=""poff2"" target=""mybuttom"" class=""button_on"">ON</a></center>\
+";
+  server.send(200, "text/html", new_button); //Send ADC value only to client ajax request
+}
+
 void handleSensor() {
   int sensor_value = 0;
   String sensor_val_str;
@@ -149,7 +299,7 @@ void handleSensor() {
   value_A0 = value_A0 / 3;
   Serial.println(value_A0);
   sensor_value = (1024 - value_A0) * 100 / 800;
-  sensor_val_str = "<h2>"+String(sensor_value) + " %</h2>";
+  sensor_val_str = "<h2><font color=red>"+String(sensor_value) + " %</font></h2>";
 
   server.send(200, "text/html", sensor_val_str);
 }
@@ -237,6 +387,21 @@ void setup() {
       server.send(401, "text/html", "Logged out!");
     });
     
+
+    server.on("/poff2", []() {
+      if (!server.authenticate(www_username, www_password)) {
+        return server.requestAuthentication();
+      }
+      handleLEDoff2();
+    });
+
+       server.on("/pon2", []() {
+      if (!server.authenticate(www_username, www_password)) {
+        return server.requestAuthentication();
+      }
+      handleLEDon2();
+    });
+
     server.begin();
     ArduinoOTA.begin();
 }
