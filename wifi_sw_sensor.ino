@@ -8,7 +8,11 @@
 
 #include <StreamString.h>
 
+#include <Ticker.h>
+
 ESP8266WebServer server(8095);
+
+Ticker blinker;
 
 String header;
 
@@ -27,13 +31,14 @@ const char* www_username = "pangan";
 const char* www_password = "OnlyGod54";
 
 int value_A0;
-
+int auto_status = 0;
 
 void handleRoot() {
  Serial.println("You called root page");
 
 
 String status = "OFF";
+
 
 char* mybuttom_value = "\
 <html><head><style>\
@@ -68,6 +73,81 @@ a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: c
 </style></head><body>\
 <div align=""center""><a align=""center"" href=""pon2"" target=""mybuttom"" class=""button_off"">OFF</a></div></body></html>\
 ";
+
+
+char* autobuttom_value = "\
+<style>\
+.button_on {\
+background-color: darkgreen;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(135deg, white, darkgreen 30%, darkgreen 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style>\
+<a align=""center"" href=""autooff2"" target=""autobuttom"" class=""button_on"">AUTO ON</a></center>\
+";
+
+
+if (auto_status == 0) {
+
+autobuttom_value = "\
+<html><head><style>\
+.button_off {\
+background-color: red;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(45deg, white, red 30%, red 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style></head><body>\
+<div align=""center""><a align=""center"" href=""autoon2"" target=""autobuttom"" class=""button_off"">AUTO OFF</a></div></body></html>\
+";
+} 
+
+
 
 if (digitalRead(output5) == HIGH){
   Serial.println("Switch is ON");
@@ -182,12 +262,13 @@ width: 90%%;\
 <br><iframe frameBorder='0' height='50' width='50%%' srcdoc='<h2 align=right>Sensor Value:</h2>'></iframe><iframe name='sensor' width='50%%' height='50' frameborder='0' srcdoc='<h2>%s</h2>'></iframe>\
 <br>\
 <iframe frameBorder='0' height='150' width='50%%' name='mybuttom' srcdoc='%s'></iframe>\
+<iframe frameBorder='0' height='150' width='50%%' name='autobuttom' srcdoc='%s'></iframe>\
 <a href ='psensor' target='sensor' class='button_all button_sensor'><font color=white>Read Sensor</font></a><br>\
 <br>\
 <a href='logout' class='button_round'><font color=white>Logout</font></a>\
 </body>\
 </html>\
-",sensor_value, mybuttom_value);
+",sensor_value, mybuttom_value, autobuttom_value);
 
 
  server.send(200, "text/html", conta.c_str());
@@ -288,6 +369,87 @@ a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: c
   server.send(200, "text/html", new_button); //Send ADC value only to client ajax request
 }
 
+void handleAutooff2() {
+  auto_status = 0;
+  digitalWrite(output5, LOW);
+  char* new_button = "\
+<html><head><style>\
+.button_off {\
+background-color: red;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(45deg, white, red 30%, red 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style></head><body>\
+<div align=""center""><a align=""center"" href=""autoon2"" target=""autobuttom"" class=""button_off"">AUTO OFF</a></div></body></html>\
+";
+  server.send(200, "text/html", new_button);
+  auto_status = 0;
+  StopAutoToggle();
+
+}
+
+void handleAutoon2() {
+  auto_status = 1;
+  char* new_button = "\
+<style>\
+.button_on {\
+background-color: darkgreen;\
+border: 0;\
+color: white;\
+cursor: pointer;\
+display: inline-block;\
+font-size: 18px;\
+font-weight: 600;\
+outline: 0;\
+padding: 16px 16px;\
+position: relative;\
+text-align: center;\
+text-decoration: none;\
+transition: all .3s;\
+user-select: none;\
+-webkit-user-select: none;\
+height: 100px;\
+width: 100px;\
+border-radius: 50%;\
+display: flex;\
+justify-content: center;\
+align-items: center;\
+background-image: linear-gradient(135deg, white, darkgreen 30%, darkgreen 70%, white);\
+position: center;\
+top: 0;\
+transition: all .3s;\
+}\
+a{font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\
+</style>\
+<a align=""center"" href=""autooff2"" target=""autobuttom"" class=""button_on"">AUTO ON</a></center>\
+";
+  server.send(200, "text/html", new_button); 
+  StartAutoToggle();
+}
+
 void handleSensor() {
   int sensor_value = 0;
   String sensor_val_str;
@@ -302,6 +464,25 @@ void handleSensor() {
   sensor_val_str = "<h2><font color=red>"+String(sensor_value) + " %</font></h2>";
 
   server.send(200, "text/html", sensor_val_str);
+}
+
+void changeState()
+{
+  digitalWrite(output5, !(digitalRead(output5)));  //Invert Current State of LED  
+  blinker.attach(60, changeState);
+}
+
+void StopAutoToggle(){
+  blinker.detach();
+  digitalWrite(output5, LOW);
+  if (auto_status == 1) {
+    blinker.attach(60*60*8, StartAutoToggle);
+  } 
+}
+
+void StartAutoToggle(){
+  digitalWrite(output5, HIGH);
+  blinker.attach(60, StopAutoToggle);
 }
 
 void setup() {
@@ -395,11 +576,25 @@ void setup() {
       handleLEDoff2();
     });
 
-       server.on("/pon2", []() {
+    server.on("/pon2", []() {
       if (!server.authenticate(www_username, www_password)) {
         return server.requestAuthentication();
       }
       handleLEDon2();
+    });
+
+    server.on("/autoon2", []() {
+      if (!server.authenticate(www_username, www_password)) {
+        return server.requestAuthentication();
+      }
+      handleAutoon2();
+    });
+
+    server.on("/autooff2", []() {
+      if (!server.authenticate(www_username, www_password)) {
+        return server.requestAuthentication();
+      }
+      handleAutooff2();
     });
 
     server.begin();
